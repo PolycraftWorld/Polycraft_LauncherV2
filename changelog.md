@@ -883,8 +883,6 @@ This is a release mostly aimed at getting all the small changes and fixes out of
 
 ### Improvements
 
-- Log uploads now use HTTPS because the [paste.ee](https://paste.ee) site is switching to HTTPS only.
-
 - Console now has the line limit and overflow settings properly set when hidden.
 
   Before, if you didn't have the console set to show up on launch, it would have some low default values set.

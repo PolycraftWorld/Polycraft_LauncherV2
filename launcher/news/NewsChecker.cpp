@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+
+// TODO:poly Need this to check polycraft world news!
+
 #include "NewsChecker.h"
 
 #include <QByteArray>
