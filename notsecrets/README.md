@@ -1,4 +1,4 @@
-# DevLauncher (Not) Secrets
+# PolycraftWorld Launcher (Not) Secrets
 
 This is a dummy implementation of MultiMC's _Secrets_ library, used to store private information needed for:
 - Application name and logo (and branding in general)
@@ -6,9 +6,9 @@ This is a dummy implementation of MultiMC's _Secrets_ library, used to store pri
 - Your Microsoft Identity Platform client ID. **This is required to use Microsoft accounts to play!**
   - If omitted, adding Microsoft accounts will be completely disabled.
 
-## MultiMC development
+## PolycraftWorld development
 
-In its current state, the `notsecrets` library is suitable for MultiMC code contributions (the code builds as `DevLauncher`).
+In its current state, the `notsecrets` library is suitable for PolycraftWorld code contributions (the code builds as `PolycraftWorld Launcher`).
 
 All you have to do is add the Microsoft client ID. See `Secrets.cpp` for details.
 
@@ -22,4 +22,4 @@ https://docs.microsoft.com/en-us/legal/microsoft-identity-platform/terms-of-use
 
 If you truly want to accept such an agreement, a starting point is to copy `notsecrets` to `secrets`, enable the `Launcher_EMBED_SECRETS` CMake option and customize the files.
 
-We do not want confused users asking for help with your fork in MultiMC Discord or similar locations.
+We do not want confused users asking for help with your fork in PolycraftWorld Discord or similar locations.

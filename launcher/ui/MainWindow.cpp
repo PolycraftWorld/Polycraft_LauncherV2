@@ -712,15 +712,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
 
     // Add the news label to the news toolbar.
     {
-        m_newsChecker.reset(new NewsChecker(APPLICATION->network(), BuildConfig.NEWS_RSS_URL));
+        // m_newsChecker.reset(new NewsChecker(APPLICATION->network(), BuildConfig.NEWS_RSS_URL));
         newsLabel = new QToolButton();
         newsLabel->setIcon(APPLICATION->getThemedIcon("news"));
         newsLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         newsLabel->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         newsLabel->setFocusPolicy(Qt::NoFocus);
         ui->newsToolBar->insertWidget(ui->actionMoreNews, newsLabel);
-        QObject::connect(newsLabel, &QAbstractButton::clicked, this, &MainWindow::newsButtonClicked);
-        QObject::connect(m_newsChecker.get(), &NewsChecker::newsLoaded, this, &MainWindow::updateNewsLabel);
+        // QObject::connect(newsLabel, &QAbstractButton::clicked, this, &MainWindow::newsButtonClicked);
+        // QObject::connect(m_newsChecker.get(), &NewsChecker::newsLoaded, this, &MainWindow::updateNewsLabel);
         updateNewsLabel();
     }
 
@@ -830,7 +830,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
 
     // load the news
     {
-        m_newsChecker->reloadNews();
+        // m_newsChecker->reloadNews();
         updateNewsLabel();
     }
 
@@ -1236,25 +1236,28 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *ev)
 
 void MainWindow::updateNewsLabel()
 {
-    if (m_newsChecker->isLoadingNews())
-    {
-        newsLabel->setText(tr("Loading news..."));
-        newsLabel->setEnabled(false);
-    }
-    else
-    {
-        QList<NewsEntryPtr> entries = m_newsChecker->getNewsEntries();
-        if (entries.length() > 0)
-        {
-            newsLabel->setText(entries[0]->title);
-            newsLabel->setEnabled(true);
-        }
-        else
-        {
-            newsLabel->setText(tr("No news available."));
-            newsLabel->setEnabled(false);
-        }
-    }
+    // if (m_newsChecker->isLoadingNews())
+    // {
+    //     newsLabel->setText(tr("Loading news..."));
+    //     newsLabel->setEnabled(false);
+    // }
+    // else
+    // {
+    //     QList<NewsEntryPtr> entries = m_newsChecker->getNewsEntries();
+    //     if (entries.length() > 0)
+    //     {
+    //         newsLabel->setText(entries[0]->title);
+    //         newsLabel->setEnabled(true);
+    //     }
+    //     else
+    //     {
+    //         newsLabel->setText(tr(""));
+    //         newsLabel->setEnabled(false);
+    //     }
+    // }
+
+    newsLabel->setText(tr(""));
+    newsLabel->setEnabled(false);
 }
 
 void MainWindow::updateAvailable(GoUpdate::Status status)
@@ -1737,7 +1740,7 @@ void MainWindow::on_actionPatreon_triggered()
 
 void MainWindow::on_actionMoreNews_triggered()
 {
-    DesktopServices::openUrl(QUrl("https://multimc.org/posts.html"));
+    DesktopServices::openUrl(QUrl("https://www.polycraftworld.com/"));
 }
 
 void MainWindow::newsButtonClicked()
@@ -1749,7 +1752,7 @@ void MainWindow::newsButtonClicked()
     }
     else
     {
-        DesktopServices::openUrl(QUrl("https://multimc.org/posts.html"));
+        DesktopServices::openUrl(QUrl("https://www.polycraftworld.com/"));
     }
 }
 
