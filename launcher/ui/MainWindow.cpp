@@ -203,6 +203,8 @@ class MainWindow::Ui
 {
 public:
     TranslatedAction actionAddInstance;
+    TranslatedAction actionUpdatePolycraft;
+    TranslatedAction actionToggleAdvanced;
     //TranslatedAction actionRefresh;
     TranslatedAction actionCheckUpdate;
     TranslatedAction actionSettings;
@@ -303,6 +305,23 @@ public:
         actionAddInstance.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Add a new instance."));
         all_actions.append(&actionAddInstance);
         mainToolBar->addAction(actionAddInstance);
+
+        mainToolBar->addSeparator();
+
+        actionUpdatePolycraft = TranslatedAction(MainWindow);
+        actionUpdatePolycraft->setObjectName(QStringLiteral("actionUpdatePolycraft"));
+        actionUpdatePolycraft->setIcon(APPLICATION->getThemedIcon("polycraft"));
+        actionUpdatePolycraft.setTextId(QT_TRANSLATE_NOOP("MainWindow", "PCW Update"));
+        actionUpdatePolycraft.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Updates Polycraft World"));
+        all_actions.append(&actionUpdatePolycraft);
+        mainToolBar->addAction(actionUpdatePolycraft);
+
+        actionToggleAdvanced = TranslatedAction(MainWindow);
+        actionToggleAdvanced->setObjectName(QStringLiteral("actionToggleAdvanced"));
+        actionToggleAdvanced.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Advanced Mode"));
+        actionToggleAdvanced.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Toggle Advanced Mode"));
+        all_actions.append(&actionToggleAdvanced);
+        mainToolBar->addAction(actionToggleAdvanced);
 
         mainToolBar->addSeparator();
 
@@ -1667,7 +1686,7 @@ void MainWindow::on_actionUpdatePolycraft_triggered()
     QNetworkAccessManager *nam = new QNetworkAccessManager(this);
     connect(nam, &QNetworkAccessManager::finished, this, &MainWindow::onForcePolycraftVersionUpdateResult);
 
-    QUrl url(BuildConfig.PCW_VERSION_URL + "/portal/version/");
+    QUrl url(BuildConfig.PCW_VERSION_URL + "portal/version/");
 
     qDebug()<< "url: "<< url.toString(QUrl::FullyEncoded);
     nam->get(QNetworkRequest(url));
