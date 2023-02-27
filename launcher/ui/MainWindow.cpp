@@ -203,7 +203,7 @@ public:
     //TranslatedAction actionRefresh;
     TranslatedAction actionCheckUpdate;
     TranslatedAction actionSettings;
-    TranslatedAction actionPatreon;
+//    TranslatedAction actionPatreon;
     TranslatedAction actionMoreNews;
     TranslatedAction actionManageAccounts;
     TranslatedAction actionLaunchInstance;
@@ -219,7 +219,7 @@ public:
     TranslatedAction actionViewSelectedModsFolder;
     TranslatedAction actionDeleteInstance;
     TranslatedAction actionConfig_Folder;
-    TranslatedAction actionCAT;
+//    TranslatedAction actionCAT;
     TranslatedAction actionCopyInstance;
     TranslatedAction actionLaunchInstanceOffline;
     TranslatedAction actionScreenshots;
@@ -403,23 +403,23 @@ public:
 
         mainToolBar->addSeparator();
 
-        actionPatreon = TranslatedAction(MainWindow);
-        actionPatreon->setObjectName(QStringLiteral("actionPatreon"));
-        actionPatreon->setIcon(APPLICATION->getThemedIcon("patreon"));
-        actionPatreon.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Support %1"));
-        actionPatreon.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open the %1 Patreon page."));
-        all_actions.append(&actionPatreon);
-        mainToolBar->addAction(actionPatreon);
+//        actionPatreon = TranslatedAction(MainWindow);
+//        actionPatreon->setObjectName(QStringLiteral("actionPatreon"));
+//        actionPatreon->setIcon(APPLICATION->getThemedIcon("patreon"));
+//        actionPatreon.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Support %1"));
+//        actionPatreon.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open the %1 Patreon page."));
+//        all_actions.append(&actionPatreon);
+//        mainToolBar->addAction(actionPatreon);
 
-        actionCAT = TranslatedAction(MainWindow);
-        actionCAT->setObjectName(QStringLiteral("actionCAT"));
-        actionCAT->setCheckable(true);
-        actionCAT->setIcon(APPLICATION->getThemedIcon("cat"));
-        actionCAT.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Meow"));
-        actionCAT.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "It's a fluffy kitty :3"));
-        actionCAT->setPriority(QAction::LowPriority);
-        all_actions.append(&actionCAT);
-        mainToolBar->addAction(actionCAT);
+//        actionCAT = TranslatedAction(MainWindow);
+//        actionCAT->setObjectName(QStringLiteral("actionCAT"));
+//        actionCAT->setCheckable(true);
+//        actionCAT->setIcon(APPLICATION->getThemedIcon("cat"));
+//        actionCAT.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Meow"));
+//        actionCAT.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "It's a fluffy kitty :3"));
+//        actionCAT->setPriority(QAction::LowPriority);
+//        all_actions.append(&actionCAT);
+//        mainToolBar->addAction(actionCAT);
 
         // profile menu and its actions
         actionManageAccounts = TranslatedAction(MainWindow);
@@ -753,13 +753,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
         ui->horizontalLayout->addWidget(view);
     }
     // The cat background
-    {
-        bool cat_enable = APPLICATION->settings()->get("TheCat").toBool();
-        ui->actionCAT->setChecked(cat_enable);
-        // NOTE: calling the operator like that is an ugly hack to appease ancient gcc...
-        connect(ui->actionCAT.operator->(), SIGNAL(toggled(bool)), SLOT(onCatToggled(bool)));
-        setCatBackground(cat_enable);
-    }
+//    {
+//        bool cat_enable = APPLICATION->settings()->get("TheCat").toBool();
+//        ui->actionCAT->setChecked(cat_enable);
+//        // NOTE: calling the operator like that is an ugly hack to appease ancient gcc...
+//        connect(ui->actionCAT.operator->(), SIGNAL(toggled(bool)), SLOT(onCatToggled(bool)));
+//        setCatBackground(cat_enable);
+//    }
     // start instance when double-clicked
     connect(view, &InstanceView::activated, this, &MainWindow::instanceActivated);
 
