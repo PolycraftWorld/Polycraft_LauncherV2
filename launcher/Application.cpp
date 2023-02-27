@@ -1406,6 +1406,26 @@ void Application::updateIsRunning(bool running)
     m_updateRunning = running;
 }
 
+void Application::updatePolycraft(QList<PolycraftUpdateDialog::version> versions){
+    //delete current instances
+    for(int instCount = this->instances()->count()-1; instCount >= 0; instCount--){
+        this->instances()->deleteInstance(this->instances()->at(instCount)->id());
+    }
+
+    //install new isntances from polycraftworld.com
+    foreach(const struct PolycraftUpdateDialog::version & v, versions){
+        QString input = BuildConfig.PCW_VERSION_URL;
+        qDebug() << "**************************";
+        qDebug() << input + v.url;
+        auto url = QUrl::fromUserInput(input + v.url);
+        QString groupName = this->settings()->get("LastUsedGroupForNewInstance").toString();
+
+        this->settings()->set("LastUsedGroupForNewInstance", groupName);
+        m_mainWindow->installPolycraftInstanceFromURL(url, v.name, v.version);
+    }
+
+}
+
 
 void Application::controllerSucceeded()
 {
@@ -1489,6 +1509,8 @@ MainWindow* Application::showMainWindow(bool minimized)
         else
         {
             m_mainWindow->show();
+            m_mainWindow->hideAdvanced();
+            m_mainWindow->checkForPolycraftUpdate();
         }
 
         m_mainWindow->checkInstancePathForProblems();

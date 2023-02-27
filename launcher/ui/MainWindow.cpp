@@ -45,6 +45,7 @@
 #include <QtWidgets/QWidgetAction>
 #include <QtWidgets/QProgressDialog>
 #include <QtWidgets/QShortcut>
+#include <QtWidgets/QStackedWidget>
 
 #include <BaseInstance.h>
 #include <InstanceList.h>
@@ -94,6 +95,8 @@
 #include "InstanceCopyTask.h"
 
 #include "MMCTime.h"
+
+#include <ui/widgets/playpolycraft.h>
 
 namespace {
 QString profileInUseFilter(const QString & profile, bool used)
@@ -245,8 +248,17 @@ public:
     QVector<TranslatedToolButton *> all_toolbuttons;
 
     QWidget *centralWidget = nullptr;
+    QStackedWidget *stackedCentralWidget = nullptr;
+    PlayPolycraft *polycraftWidget = nullptr;
+    QHBoxLayout *stackedCentralLayout = nullptr;
+    QHBoxLayout *polycraftLayout = nullptr;
     QHBoxLayout *horizontalLayout = nullptr;
     QStatusBar *statusBar = nullptr;
+
+    QString *polycraftReleaseVersion = nullptr;
+    QString *polycraftBetaVersion = nullptr;
+    QString *polycraftInstalledReleaseVersion = nullptr;
+    QString *polycraftInstalledBetaVersion = nullptr;
 
     TranslatedToolbar mainToolBar;
     TranslatedToolbar instanceToolBar;
@@ -652,7 +664,30 @@ public:
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
         horizontalLayout->setSizeConstraint(QLayout::SetDefaultConstraint);
         horizontalLayout->setContentsMargins(0, 0, 0, 0);
-        MainWindow->setCentralWidget(centralWidget);
+//        MainWindow->setCentralWidget(centralWidget);
+
+
+        polycraftWidget = new PlayPolycraft();
+        QStringList *instances = new QStringList();
+        APPLICATION->instances()->loadList();
+
+        for(int instCount = APPLICATION->instances()->count()-1; instCount >= 0; instCount--){
+            instances->append(APPLICATION->instances()->at(instCount)->id());
+        }
+
+        polycraftWidget->initialize(*instances);
+        polycraftWidget->setObjectName(QStringLiteral("polycraftWidget"));
+
+        stackedCentralWidget = new QStackedWidget(MainWindow);
+        stackedCentralWidget->setObjectName(QStringLiteral("stackedCentralWidget"));
+        stackedCentralWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        stackedCentralWidget->addWidget(centralWidget);
+        stackedCentralWidget->addWidget(polycraftWidget);
+
+        MainWindow->setCentralWidget(stackedCentralWidget);
+        MainWindow->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        MainWindow->centralWidget()->adjustSize();
+
 
         createStatusBar(MainWindow);
         createNewsToolbar(MainWindow);
@@ -689,6 +724,90 @@ public:
         helpMenuButton->setText(tr("Help"));
     } // retranslateUi
 };
+
+
+
+void MainWindow::onPolycraftVersionCheckResult(QNetworkReply *reply){
+    if(reply->error() == QNetworkReply::NoError){
+
+        QByteArray result = reply->readAll();
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(result);
+        QJsonObject obj = jsonResponse.object();
+        QJsonValue value = obj.value("versions");
+        QJsonArray array = value.toArray();
+        QList<PolycraftUpdateDialog::version> *versions = new QList<PolycraftUpdateDialog::version>();
+
+        if(APPLICATION->settings()->getSetting("polycraftVersion") == NULL)
+            APPLICATION->settings()->registerSetting("polycraftVersion", "");
+        if(APPLICATION->settings()->getSetting("polycraftBetaVersion") == NULL)
+            APPLICATION->settings()->registerSetting("polycraftBetaVersion", "");
+//        qDebug() << "**************************";
+//        qDebug() << MMC->settings()->get("polycraftVersion").toString();
+        int counter = 0;
+        bool promptUpdate = false;
+        foreach (const QJsonValue & v, array){
+            struct PolycraftUpdateDialog::version version;
+            version.name = v.toObject().value("name").toString();
+            version.version = v.toObject().value("version").toString();
+            version.url = v.toObject().value("url").toString();
+            versions->append(version);
+            if(version.name.toLower().compare("release") == 0)
+                if(APPLICATION->settings()->get("polycraftVersion").toString().compare(version.version) != 0){
+                    qDebug() << APPLICATION->settings()->get("polycraftVersion").toString().compare(version.version);
+                    promptUpdate = true;
+                }
+            qDebug() << v.toObject().value("name").toString() << "::" << v.toObject().value("version").toString()<< "::" << v.toObject().value("url").toString();
+            counter++;
+        }
+
+        if(promptUpdate){
+            PolycraftUpdateDialog *polyUpdateDiag = new PolycraftUpdateDialog(this);
+            polyUpdateDiag->initialize(*versions);
+            polyUpdateDiag->show();
+        }
+
+    }
+    else
+        qDebug() << "ERROR:" << reply->error();
+    reply->deleteLater();
+}
+
+void MainWindow::onForcePolycraftVersionUpdateResult(QNetworkReply *reply){
+    if(reply->error() == QNetworkReply::NoError){
+
+        QByteArray result = reply->readAll();
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(result);
+        QJsonObject obj = jsonResponse.object();
+        QJsonValue value = obj.value("versions");
+        QJsonArray array = value.toArray();
+        QList<PolycraftUpdateDialog::version> *versions = new QList<PolycraftUpdateDialog::version>();
+
+        if(APPLICATION->settings()->getSetting("polycraftVersion") == NULL)
+            APPLICATION->settings()->registerSetting("polycraftVersion", "");
+        if(APPLICATION->settings()->getSetting("polycraftBetaVersion") == NULL)
+            APPLICATION->settings()->registerSetting("polycraftBetaVersion", "");
+//        qDebug() << "**************************";
+//        qDebug() << MMC->settings()->get("polycraftVersion").toString();
+        int counter = 0;
+        foreach (const QJsonValue & v, array){
+            struct PolycraftUpdateDialog::version version;
+            version.name = v.toObject().value("name").toString();
+            version.version = v.toObject().value("version").toString();
+            version.url = v.toObject().value("url").toString();
+            versions->append(version);
+
+            qDebug() << v.toObject().value("name").toString() << "::" << v.toObject().value("version").toString()<< "::" << v.toObject().value("url").toString();
+            counter++;
+        }
+
+        APPLICATION->updatePolycraft(*versions);
+
+    }
+    else
+        qDebug() << "ERROR:" << reply->error();
+    reply->deleteLater();
+}
+
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow::Ui)
 {
@@ -895,6 +1014,16 @@ void MainWindow::retranslateUi()
 
 MainWindow::~MainWindow()
 {
+}
+
+void MainWindow::checkForPolycraftUpdate(){
+    QNetworkAccessManager *nam = new QNetworkAccessManager(this);
+    connect(nam, &QNetworkAccessManager::finished, this, &MainWindow::onPolycraftVersionCheckResult);
+
+    QUrl url(BuildConfig.PCW_VERSION_URL + "portal/version/");
+
+    qDebug()<< "url: "<< url.toString(QUrl::FullyEncoded);
+    nam->get(QNetworkRequest(url));
 }
 
 QMenu * MainWindow::createPopupMenu()
@@ -1519,6 +1648,85 @@ void MainWindow::addInstance(QString url)
 void MainWindow::on_actionAddInstance_triggered()
 {
     addInstance();
+}
+
+void MainWindow::on_actionUpdatePolycraft_triggered()
+{
+//    QString input = "https://polycraft.utdallas.edu/downloads/polycraft_package.zip";
+//    auto url = QUrl::fromUserInput(input);
+//    QString groupName = MMC->settings()->get("LastUsedGroupForNewInstance").toString();
+
+//    MMC->settings()->set("LastUsedGroupForNewInstance", groupName);
+
+//    InstanceTask * creationTask = new InstanceImportTask(url);
+//    creationTask->setName("Polycraft");
+//    if(creationTask)
+//    {
+//        this->instanceFromInstanceTask(creationTask);
+//    }
+    QNetworkAccessManager *nam = new QNetworkAccessManager(this);
+    connect(nam, &QNetworkAccessManager::finished, this, &MainWindow::onForcePolycraftVersionUpdateResult);
+
+    QUrl url(BuildConfig.PCW_VERSION_URL + "/portal/version/");
+
+    qDebug()<< "url: "<< url.toString(QUrl::FullyEncoded);
+    nam->get(QNetworkRequest(url));
+}
+
+void MainWindow::installPolycraftInstanceFromURL(QUrl url, QString name, QString version){
+    InstanceTask * creationTask = new InstanceImportTask(url);
+    creationTask->setName("Polycraft " + name + version);
+    if(creationTask)
+    {
+        unique_qobject_ptr<Task> task(APPLICATION->instances()->wrapInstanceTask(creationTask));
+
+        connect(task.get(), &Task::succeeded, [name, version]()
+            {
+                //upon successful install, set new installed release version
+                if(name.contains("release", Qt::CaseInsensitive))
+                    APPLICATION->settings()->set("polycraftVersion", version);
+                else if(name.contains("beta", Qt::CaseInsensitive))
+                    APPLICATION->settings()->set("polycraftBetaVersion", version);
+            });
+        runModalTask(task.get());
+    }
+}
+
+void MainWindow::on_actionToggleAdvanced_triggered()
+{
+    if(this->ui->newsToolBar->isHidden()){
+        APPLICATION->SendAnalyticsEvent("Button", "Advanced Show", "test", QVariant(1));
+        showAdvanced();
+    }else{
+        APPLICATION->SendAnalyticsEvent("Button", "Advanced Hide", "test", QVariant(1));
+        hideAdvanced();
+    }
+}
+
+void MainWindow::hideAdvanced()
+{
+    this->resize(485, 400);
+    //this->setCentralWidget(this->ui->polycraftWidget);
+    toggleHideAdvanced(false);
+    this->ui->centralWidget->adjustSize();
+}
+
+void MainWindow::showAdvanced(){
+    toggleHideAdvanced(true);
+    //this->setCentralWidget(this->ui->centralWidget);
+    this->resize(694, 563);
+}
+
+void MainWindow::toggleHideAdvanced(bool flag)
+{
+    this->ui->newsToolBar->setVisible(flag);
+    this->ui->instanceToolBar->setVisible(flag);
+    this->ui->centralWidget->setVisible(flag);
+    this->ui->actionSettings->setVisible(flag);
+    this->ui->actionAddInstance->setVisible(flag);
+//    this->ui->actionCAT->setVisible(flag);
+//    this->ui->foldersButtonAction->setVisible(flag);
+    this->ui->polycraftWidget->setVisible(!flag);
 }
 
 void MainWindow::droppedURLs(QList<QUrl> urls)

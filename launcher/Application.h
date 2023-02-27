@@ -8,6 +8,7 @@
 #include <QDateTime>
 #include <QUrl>
 #include <updater/GoUpdate.h>
+#include <ui/dialogs/PolycraftUpdateDialog.h>
 
 #include <BaseInstance.h>
 
@@ -63,6 +64,12 @@ public:
     GAnalytics *analytics() const {
         return m_analytics;
     }
+
+    void SendAnalyticsEvent(QString category, QString action, QString label, QVariant qvar){
+        //m_analytics->sendEvent(category, action, label, qvar);
+    }
+
+    void updatePolycraft(QList<PolycraftUpdateDialog::version> versions);
 
     std::shared_ptr<SettingsObject> settings() const {
         return m_settings;

@@ -790,6 +790,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/CreateShortcutDialog.h
     ui/dialogs/ModrinthExportDialog.cpp
     ui/dialogs/ModrinthExportDialog.h
+    ui/dialogs/PolycraftUpdateDialog.cpp
+    ui/dialogs/PolycraftUpdateDialog.h
 
     # GUI - widgets
     ui/widgets/Common.cpp
@@ -827,6 +829,8 @@ SET(LAUNCHER_SOURCES
     ui/widgets/ProgressWidget.cpp
     ui/widgets/WideBar.h
     ui/widgets/WideBar.cpp
+    ui/widgets/playpolycraft.h
+    ui/widgets/playpolycraft.cpp
 
     # GUI - instance group view
     ui/instanceview/InstanceProxyModel.cpp
@@ -872,6 +876,7 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/widgets/InstanceCardWidget.ui
     ui/widgets/CustomCommands.ui
     ui/widgets/MCModInfoFrame.ui
+    ui/widgets/PlayPolycraft.ui
     ui/dialogs/CopyInstanceDialog.ui
     ui/dialogs/ProfileSetupDialog.ui
     ui/dialogs/ProgressDialog.ui
@@ -889,6 +894,7 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/dialogs/EditAccountDialog.ui
     ui/dialogs/CreateShortcutDialog.ui
     ui/dialogs/ModrinthExportDialog.ui
+    ui/dialogs/PolycraftUpdateDialog.ui
 )
 
 qt5_add_resources(LAUNCHER_RESOURCES

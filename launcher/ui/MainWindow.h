@@ -53,9 +53,30 @@ public:
     void closeEvent(QCloseEvent *event) override;
     void changeEvent(QEvent * event) override;
 
+    void hideAdvanced();
+    void showAdvanced();
+    void toggleHideAdvanced(bool flag);
+
     void checkInstancePathForProblems();
 
     void updatesAllowedChanged(bool allowed);
+
+    void checkForPolycraftUpdate();
+
+    void installPolycraftInstanceFromURL(QUrl url, QString name, QString version);
+
+    void updatePolycraftVersion(QString version){
+        m_polycraftVersion = version;
+    }
+    void updatePolycraftBetaVersion(QString version){
+        m_polycraftBetaVersion = version;
+    }
+    QString PolycraftVersion(){
+        return m_polycraftVersion;
+    }
+    QString PolycraftBetaVersion(){
+        return m_polycraftBetaVersion;
+    }
 
     void droppedURLs(QList<QUrl> urls);
 signals:
@@ -70,6 +91,10 @@ private slots:
     void on_actionAbout_triggered();
 
     void on_actionAddInstance_triggered();
+
+    void on_actionUpdatePolycraft_triggered();
+
+    void on_actionToggleAdvanced_triggered();
 
     void on_actionREDDIT_triggered();
 
@@ -203,6 +228,9 @@ private:
     void instanceFromInstanceTask(InstanceTask *task);
     void finalizeInstance(InstancePtr inst);
 
+    void onPolycraftVersionCheckResult(QNetworkReply *reply);
+    void onForcePolycraftVersionUpdateResult(QNetworkReply *reply);
+
 private:
     std::unique_ptr<Ui> ui;
 
@@ -221,6 +249,8 @@ private:
 
     InstancePtr m_selectedInstance;
     QString m_currentInstIcon;
+    QString m_polycraftVersion;
+    QString m_polycraftBetaVersion;
 
     // managed by the application object
     Task *m_versionLoadTask = nullptr;

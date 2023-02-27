@@ -39,6 +39,9 @@ public:
     QString UPDATER_BASE;
 
 
+    /// URL for the Polycraft World Updater
+    QString PCW_VERSION_URL = "https://www.polycraftworld.com/";
+
     /// User-Agent to use.
     QString USER_AGENT;
 
