@@ -251,7 +251,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="forkingTab">
+     <!-- <widget class="QWidget" name="forkingTab">
       <attribute name="title">
        <string>Forking/Redistribution</string>
       </attribute>
@@ -264,7 +264,7 @@
         </widget>
        </item>
       </layout>
-     </widget>
+     </widget> -->
     </widget>
    </item>
    <item>
@@ -307,7 +307,7 @@
   <tabstop>tabWidget</tabstop>
   <tabstop>creditsText</tabstop>
   <tabstop>licenseText</tabstop>
-  <tabstop>redistributionText</tabstop>
+  <!-- <tabstop>redistributionText</tabstop> -->
   <tabstop>aboutQt</tabstop>
   <tabstop>closeButton</tabstop>
  </tabstops>

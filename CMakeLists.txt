@@ -68,7 +68,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQT_NO_DEPRECATED_WARNINGS=Y")
 ##################################### Set Application options #####################################
 
 ######## Set URLs ########
-set(Launcher_NEWS_RSS_URL "https://multimc.org/rss.xml" CACHE STRING "URL to fetch Launcher's news RSS feed from.")
+set(Launcher_NEWS_RSS_URL "https://www.polycraftworld.com/rss.xml" CACHE STRING "URL to fetch Launcher's news RSS feed from.")
+
+# Polycraft World Check for Updates url
+set(PCW_VERSION_URL "https://www.polycraftworld.com/" CACHE STRING "URL for the channel list.")
 
 ######## Set version numbers ########
 set(Launcher_VERSION_MAJOR    0)
@@ -109,7 +112,7 @@ set(Launcher_DISCORD_URL "" CACHE STRING "URL for the Discord guild.")
 set(Launcher_SUBREDDIT_URL "" CACHE STRING "URL for the subreddit.")
 
 # Use the secrets library or a public stub?
-option(Launcher_EMBED_SECRETS "Determines whether to embed secrets. Secrets are separate and non-public." OFF)
+option(Launcher_EMBED_SECRETS "Determines whether to embed secrets. Secrets are separate and non-public." ON)
 
 #### Check the current Git commit and branch
 include(GetGitRevisionDescription)

@@ -45,6 +45,7 @@
 #include <QtWidgets/QWidgetAction>
 #include <QtWidgets/QProgressDialog>
 #include <QtWidgets/QShortcut>
+#include <QtWidgets/QStackedWidget>
 
 #include <BaseInstance.h>
 #include <InstanceList.h>
@@ -94,6 +95,8 @@
 #include "InstanceCopyTask.h"
 
 #include "MMCTime.h"
+
+#include <ui/widgets/playpolycraft.h>
 
 namespace {
 QString profileInUseFilter(const QString & profile, bool used)
@@ -200,10 +203,12 @@ class MainWindow::Ui
 {
 public:
     TranslatedAction actionAddInstance;
+    TranslatedAction actionUpdatePolycraft;
+    TranslatedAction actionToggleAdvanced;
     //TranslatedAction actionRefresh;
     TranslatedAction actionCheckUpdate;
     TranslatedAction actionSettings;
-    TranslatedAction actionPatreon;
+//    TranslatedAction actionPatreon;
     TranslatedAction actionMoreNews;
     TranslatedAction actionManageAccounts;
     TranslatedAction actionLaunchInstance;
@@ -219,7 +224,7 @@ public:
     TranslatedAction actionViewSelectedModsFolder;
     TranslatedAction actionDeleteInstance;
     TranslatedAction actionConfig_Folder;
-    TranslatedAction actionCAT;
+//    TranslatedAction actionCAT;
     TranslatedAction actionCopyInstance;
     TranslatedAction actionLaunchInstanceOffline;
     TranslatedAction actionScreenshots;
@@ -245,8 +250,17 @@ public:
     QVector<TranslatedToolButton *> all_toolbuttons;
 
     QWidget *centralWidget = nullptr;
+    QStackedWidget *stackedCentralWidget = nullptr;
+    PlayPolycraft *polycraftWidget = nullptr;
+    QHBoxLayout *stackedCentralLayout = nullptr;
+    QHBoxLayout *polycraftLayout = nullptr;
     QHBoxLayout *horizontalLayout = nullptr;
     QStatusBar *statusBar = nullptr;
+
+    QString *polycraftReleaseVersion = nullptr;
+    QString *polycraftBetaVersion = nullptr;
+    QString *polycraftInstalledReleaseVersion = nullptr;
+    QString *polycraftInstalledBetaVersion = nullptr;
 
     TranslatedToolbar mainToolBar;
     TranslatedToolbar instanceToolBar;
@@ -291,6 +305,23 @@ public:
         actionAddInstance.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Add a new instance."));
         all_actions.append(&actionAddInstance);
         mainToolBar->addAction(actionAddInstance);
+
+        mainToolBar->addSeparator();
+
+        actionUpdatePolycraft = TranslatedAction(MainWindow);
+        actionUpdatePolycraft->setObjectName(QStringLiteral("actionUpdatePolycraft"));
+        actionUpdatePolycraft->setIcon(APPLICATION->getThemedIcon("polycraft"));
+        actionUpdatePolycraft.setTextId(QT_TRANSLATE_NOOP("MainWindow", "PCW Update"));
+        actionUpdatePolycraft.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Updates Polycraft World"));
+        all_actions.append(&actionUpdatePolycraft);
+        mainToolBar->addAction(actionUpdatePolycraft);
+
+        actionToggleAdvanced = TranslatedAction(MainWindow);
+        actionToggleAdvanced->setObjectName(QStringLiteral("actionToggleAdvanced"));
+        actionToggleAdvanced.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Advanced Mode"));
+        actionToggleAdvanced.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Toggle Advanced Mode"));
+        all_actions.append(&actionToggleAdvanced);
+        mainToolBar->addAction(actionToggleAdvanced);
 
         mainToolBar->addSeparator();
 
@@ -403,23 +434,23 @@ public:
 
         mainToolBar->addSeparator();
 
-        actionPatreon = TranslatedAction(MainWindow);
-        actionPatreon->setObjectName(QStringLiteral("actionPatreon"));
-        actionPatreon->setIcon(APPLICATION->getThemedIcon("patreon"));
-        actionPatreon.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Support %1"));
-        actionPatreon.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open the %1 Patreon page."));
-        all_actions.append(&actionPatreon);
-        mainToolBar->addAction(actionPatreon);
+//        actionPatreon = TranslatedAction(MainWindow);
+//        actionPatreon->setObjectName(QStringLiteral("actionPatreon"));
+//        actionPatreon->setIcon(APPLICATION->getThemedIcon("patreon"));
+//        actionPatreon.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Support %1"));
+//        actionPatreon.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open the %1 Patreon page."));
+//        all_actions.append(&actionPatreon);
+//        mainToolBar->addAction(actionPatreon);
 
-        actionCAT = TranslatedAction(MainWindow);
-        actionCAT->setObjectName(QStringLiteral("actionCAT"));
-        actionCAT->setCheckable(true);
-        actionCAT->setIcon(APPLICATION->getThemedIcon("cat"));
-        actionCAT.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Meow"));
-        actionCAT.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "It's a fluffy kitty :3"));
-        actionCAT->setPriority(QAction::LowPriority);
-        all_actions.append(&actionCAT);
-        mainToolBar->addAction(actionCAT);
+//        actionCAT = TranslatedAction(MainWindow);
+//        actionCAT->setObjectName(QStringLiteral("actionCAT"));
+//        actionCAT->setCheckable(true);
+//        actionCAT->setIcon(APPLICATION->getThemedIcon("cat"));
+//        actionCAT.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Meow"));
+//        actionCAT.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "It's a fluffy kitty :3"));
+//        actionCAT->setPriority(QAction::LowPriority);
+//        all_actions.append(&actionCAT);
+//        mainToolBar->addAction(actionCAT);
 
         // profile menu and its actions
         actionManageAccounts = TranslatedAction(MainWindow);
@@ -652,7 +683,30 @@ public:
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
         horizontalLayout->setSizeConstraint(QLayout::SetDefaultConstraint);
         horizontalLayout->setContentsMargins(0, 0, 0, 0);
-        MainWindow->setCentralWidget(centralWidget);
+//        MainWindow->setCentralWidget(centralWidget);
+
+
+        polycraftWidget = new PlayPolycraft();
+        QStringList *instances = new QStringList();
+        APPLICATION->instances()->loadList();
+
+        for(int instCount = APPLICATION->instances()->count()-1; instCount >= 0; instCount--){
+            instances->append(APPLICATION->instances()->at(instCount)->id());
+        }
+
+        polycraftWidget->initialize(*instances);
+        polycraftWidget->setObjectName(QStringLiteral("polycraftWidget"));
+
+        stackedCentralWidget = new QStackedWidget(MainWindow);
+        stackedCentralWidget->setObjectName(QStringLiteral("stackedCentralWidget"));
+        stackedCentralWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        stackedCentralWidget->addWidget(centralWidget);
+        stackedCentralWidget->addWidget(polycraftWidget);
+
+        MainWindow->setCentralWidget(stackedCentralWidget);
+        MainWindow->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        MainWindow->centralWidget()->adjustSize();
+
 
         createStatusBar(MainWindow);
         createNewsToolbar(MainWindow);
@@ -690,6 +744,90 @@ public:
     } // retranslateUi
 };
 
+
+
+void MainWindow::onPolycraftVersionCheckResult(QNetworkReply *reply){
+    if(reply->error() == QNetworkReply::NoError){
+
+        QByteArray result = reply->readAll();
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(result);
+        QJsonObject obj = jsonResponse.object();
+        QJsonValue value = obj.value("versions");
+        QJsonArray array = value.toArray();
+        QList<PolycraftUpdateDialog::version> *versions = new QList<PolycraftUpdateDialog::version>();
+
+        if(APPLICATION->settings()->getSetting("polycraftVersion") == NULL)
+            APPLICATION->settings()->registerSetting("polycraftVersion", "");
+        if(APPLICATION->settings()->getSetting("polycraftBetaVersion") == NULL)
+            APPLICATION->settings()->registerSetting("polycraftBetaVersion", "");
+//        qDebug() << "**************************";
+//        qDebug() << MMC->settings()->get("polycraftVersion").toString();
+        int counter = 0;
+        bool promptUpdate = false;
+        foreach (const QJsonValue & v, array){
+            struct PolycraftUpdateDialog::version version;
+            version.name = v.toObject().value("name").toString();
+            version.version = v.toObject().value("version").toString();
+            version.url = v.toObject().value("url").toString();
+            versions->append(version);
+            if(version.name.toLower().compare("release") == 0)
+                if(APPLICATION->settings()->get("polycraftVersion").toString().compare(version.version) != 0){
+                    qDebug() << APPLICATION->settings()->get("polycraftVersion").toString().compare(version.version);
+                    promptUpdate = true;
+                }
+            qDebug() << v.toObject().value("name").toString() << "::" << v.toObject().value("version").toString()<< "::" << v.toObject().value("url").toString();
+            counter++;
+        }
+
+        if(promptUpdate){
+            PolycraftUpdateDialog *polyUpdateDiag = new PolycraftUpdateDialog(this);
+            polyUpdateDiag->initialize(*versions);
+            polyUpdateDiag->show();
+        }
+
+    }
+    else
+        qDebug() << "ERROR:" << reply->error();
+    reply->deleteLater();
+}
+
+void MainWindow::onForcePolycraftVersionUpdateResult(QNetworkReply *reply){
+    if(reply->error() == QNetworkReply::NoError){
+
+        QByteArray result = reply->readAll();
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(result);
+        QJsonObject obj = jsonResponse.object();
+        QJsonValue value = obj.value("versions");
+        QJsonArray array = value.toArray();
+        QList<PolycraftUpdateDialog::version> *versions = new QList<PolycraftUpdateDialog::version>();
+
+        if(APPLICATION->settings()->getSetting("polycraftVersion") == NULL)
+            APPLICATION->settings()->registerSetting("polycraftVersion", "");
+        if(APPLICATION->settings()->getSetting("polycraftBetaVersion") == NULL)
+            APPLICATION->settings()->registerSetting("polycraftBetaVersion", "");
+//        qDebug() << "**************************";
+//        qDebug() << MMC->settings()->get("polycraftVersion").toString();
+        int counter = 0;
+        foreach (const QJsonValue & v, array){
+            struct PolycraftUpdateDialog::version version;
+            version.name = v.toObject().value("name").toString();
+            version.version = v.toObject().value("version").toString();
+            version.url = v.toObject().value("url").toString();
+            versions->append(version);
+
+            qDebug() << v.toObject().value("name").toString() << "::" << v.toObject().value("version").toString()<< "::" << v.toObject().value("url").toString();
+            counter++;
+        }
+
+        APPLICATION->updatePolycraft(*versions);
+
+    }
+    else
+        qDebug() << "ERROR:" << reply->error();
+    reply->deleteLater();
+}
+
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow::Ui)
 {
     ui->setupUi(this);
@@ -712,15 +850,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
 
     // Add the news label to the news toolbar.
     {
-        m_newsChecker.reset(new NewsChecker(APPLICATION->network(), BuildConfig.NEWS_RSS_URL));
+        // m_newsChecker.reset(new NewsChecker(APPLICATION->network(), BuildConfig.NEWS_RSS_URL));
         newsLabel = new QToolButton();
         newsLabel->setIcon(APPLICATION->getThemedIcon("news"));
         newsLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         newsLabel->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         newsLabel->setFocusPolicy(Qt::NoFocus);
         ui->newsToolBar->insertWidget(ui->actionMoreNews, newsLabel);
-        QObject::connect(newsLabel, &QAbstractButton::clicked, this, &MainWindow::newsButtonClicked);
-        QObject::connect(m_newsChecker.get(), &NewsChecker::newsLoaded, this, &MainWindow::updateNewsLabel);
+        // QObject::connect(newsLabel, &QAbstractButton::clicked, this, &MainWindow::newsButtonClicked);
+        // QObject::connect(m_newsChecker.get(), &NewsChecker::newsLoaded, this, &MainWindow::updateNewsLabel);
         updateNewsLabel();
     }
 
@@ -753,13 +891,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
         ui->horizontalLayout->addWidget(view);
     }
     // The cat background
-    {
-        bool cat_enable = APPLICATION->settings()->get("TheCat").toBool();
-        ui->actionCAT->setChecked(cat_enable);
-        // NOTE: calling the operator like that is an ugly hack to appease ancient gcc...
-        connect(ui->actionCAT.operator->(), SIGNAL(toggled(bool)), SLOT(onCatToggled(bool)));
-        setCatBackground(cat_enable);
-    }
+//    {
+//        bool cat_enable = APPLICATION->settings()->get("TheCat").toBool();
+//        ui->actionCAT->setChecked(cat_enable);
+//        // NOTE: calling the operator like that is an ugly hack to appease ancient gcc...
+//        connect(ui->actionCAT.operator->(), SIGNAL(toggled(bool)), SLOT(onCatToggled(bool)));
+//        setCatBackground(cat_enable);
+//    }
     // start instance when double-clicked
     connect(view, &InstanceView::activated, this, &MainWindow::instanceActivated);
 
@@ -830,7 +968,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
 
     // load the news
     {
-        m_newsChecker->reloadNews();
+        // m_newsChecker->reloadNews();
         updateNewsLabel();
     }
 
@@ -895,6 +1033,16 @@ void MainWindow::retranslateUi()
 
 MainWindow::~MainWindow()
 {
+}
+
+void MainWindow::checkForPolycraftUpdate(){
+    QNetworkAccessManager *nam = new QNetworkAccessManager(this);
+    connect(nam, &QNetworkAccessManager::finished, this, &MainWindow::onPolycraftVersionCheckResult);
+
+    QUrl url(BuildConfig.PCW_VERSION_URL + "portal/version/");
+
+    qDebug()<< "url: "<< url.toString(QUrl::FullyEncoded);
+    nam->get(QNetworkRequest(url));
 }
 
 QMenu * MainWindow::createPopupMenu()
@@ -1236,25 +1384,28 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *ev)
 
 void MainWindow::updateNewsLabel()
 {
-    if (m_newsChecker->isLoadingNews())
-    {
-        newsLabel->setText(tr("Loading news..."));
-        newsLabel->setEnabled(false);
-    }
-    else
-    {
-        QList<NewsEntryPtr> entries = m_newsChecker->getNewsEntries();
-        if (entries.length() > 0)
-        {
-            newsLabel->setText(entries[0]->title);
-            newsLabel->setEnabled(true);
-        }
-        else
-        {
-            newsLabel->setText(tr("No news available."));
-            newsLabel->setEnabled(false);
-        }
-    }
+    // if (m_newsChecker->isLoadingNews())
+    // {
+    //     newsLabel->setText(tr("Loading news..."));
+    //     newsLabel->setEnabled(false);
+    // }
+    // else
+    // {
+    //     QList<NewsEntryPtr> entries = m_newsChecker->getNewsEntries();
+    //     if (entries.length() > 0)
+    //     {
+    //         newsLabel->setText(entries[0]->title);
+    //         newsLabel->setEnabled(true);
+    //     }
+    //     else
+    //     {
+    //         newsLabel->setText(tr(""));
+    //         newsLabel->setEnabled(false);
+    //     }
+    // }
+
+    newsLabel->setText(tr(""));
+    newsLabel->setEnabled(false);
 }
 
 void MainWindow::updateAvailable(GoUpdate::Status status)
@@ -1518,6 +1669,85 @@ void MainWindow::on_actionAddInstance_triggered()
     addInstance();
 }
 
+void MainWindow::on_actionUpdatePolycraft_triggered()
+{
+//    QString input = "https://polycraft.utdallas.edu/downloads/polycraft_package.zip";
+//    auto url = QUrl::fromUserInput(input);
+//    QString groupName = MMC->settings()->get("LastUsedGroupForNewInstance").toString();
+
+//    MMC->settings()->set("LastUsedGroupForNewInstance", groupName);
+
+//    InstanceTask * creationTask = new InstanceImportTask(url);
+//    creationTask->setName("Polycraft");
+//    if(creationTask)
+//    {
+//        this->instanceFromInstanceTask(creationTask);
+//    }
+    QNetworkAccessManager *nam = new QNetworkAccessManager(this);
+    connect(nam, &QNetworkAccessManager::finished, this, &MainWindow::onForcePolycraftVersionUpdateResult);
+
+    QUrl url(BuildConfig.PCW_VERSION_URL + "portal/version/");
+
+    qDebug()<< "url: "<< url.toString(QUrl::FullyEncoded);
+    nam->get(QNetworkRequest(url));
+}
+
+void MainWindow::installPolycraftInstanceFromURL(QUrl url, QString name, QString version){
+    InstanceTask * creationTask = new InstanceImportTask(url);
+    creationTask->setName("Polycraft " + name + version);
+    if(creationTask)
+    {
+        unique_qobject_ptr<Task> task(APPLICATION->instances()->wrapInstanceTask(creationTask));
+
+        connect(task.get(), &Task::succeeded, [name, version]()
+            {
+                //upon successful install, set new installed release version
+                if(name.contains("release", Qt::CaseInsensitive))
+                    APPLICATION->settings()->set("polycraftVersion", version);
+                else if(name.contains("beta", Qt::CaseInsensitive))
+                    APPLICATION->settings()->set("polycraftBetaVersion", version);
+            });
+        runModalTask(task.get());
+    }
+}
+
+void MainWindow::on_actionToggleAdvanced_triggered()
+{
+    if(this->ui->newsToolBar->isHidden()){
+        APPLICATION->SendAnalyticsEvent("Button", "Advanced Show", "test", QVariant(1));
+        showAdvanced();
+    }else{
+        APPLICATION->SendAnalyticsEvent("Button", "Advanced Hide", "test", QVariant(1));
+        hideAdvanced();
+    }
+}
+
+void MainWindow::hideAdvanced()
+{
+    this->resize(485, 400);
+    //this->setCentralWidget(this->ui->polycraftWidget);
+    toggleHideAdvanced(false);
+    this->ui->centralWidget->adjustSize();
+}
+
+void MainWindow::showAdvanced(){
+    toggleHideAdvanced(true);
+    //this->setCentralWidget(this->ui->centralWidget);
+    this->resize(694, 563);
+}
+
+void MainWindow::toggleHideAdvanced(bool flag)
+{
+    this->ui->newsToolBar->setVisible(flag);
+    this->ui->instanceToolBar->setVisible(flag);
+    this->ui->centralWidget->setVisible(flag);
+    this->ui->actionSettings->setVisible(flag);
+    this->ui->actionAddInstance->setVisible(flag);
+//    this->ui->actionCAT->setVisible(flag);
+//    this->ui->foldersButtonAction->setVisible(flag);
+    this->ui->polycraftWidget->setVisible(!flag);
+}
+
 void MainWindow::droppedURLs(QList<QUrl> urls)
 {
     for(auto & url:urls)
@@ -1737,7 +1967,7 @@ void MainWindow::on_actionPatreon_triggered()
 
 void MainWindow::on_actionMoreNews_triggered()
 {
-    DesktopServices::openUrl(QUrl("https://multimc.org/posts.html"));
+    DesktopServices::openUrl(QUrl("https://www.polycraftworld.com/"));
 }
 
 void MainWindow::newsButtonClicked()
@@ -1749,7 +1979,7 @@ void MainWindow::newsButtonClicked()
     }
     else
     {
-        DesktopServices::openUrl(QUrl("https://multimc.org/posts.html"));
+        DesktopServices::openUrl(QUrl("https://www.polycraftworld.com/"));
     }
 }
 
