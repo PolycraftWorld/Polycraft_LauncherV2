@@ -89,8 +89,8 @@ public:
     QString META_URL;
 
     QString BUG_TRACKER_URL;
-    QString DISCORD_URL;
-    QString SUBREDDIT_URL;
+    QString DISCORD_URL = "https://discord.gg/6CMKMauPU2";
+    QString SUBREDDIT_URL = "https://www.reddit.com/r/polycraft_world/";
 
     QString RESOURCE_BASE = "https://resources.download.minecraft.net/";
     QString LIBRARY_BASE = "https://libraries.minecraft.net/";
