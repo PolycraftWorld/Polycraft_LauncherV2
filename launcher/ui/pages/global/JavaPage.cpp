@@ -39,6 +39,7 @@ JavaPage::JavaPage(QWidget *parent) : QWidget(parent), ui(new Ui::JavaPage)
 
     auto sysMiB = Sys::getSystemRam() / Sys::mebibyte;
     ui->maxMemSpinBox->setMaximum(sysMiB);
+    ui->javaDownloadLink->setOpenExternalLinks(true);
     loadSettings();
 }
 

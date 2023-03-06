@@ -75,6 +75,8 @@ private: /* data */
     VersionSelectWidget *m_versionWidget = nullptr;
     QVBoxLayout *m_verticalLayout = nullptr;
 
+    QLabel *m_javaDownloadLink = nullptr;
+
     QLineEdit * m_javaPathTextBox = nullptr;
     QPushButton * m_javaBrowseBtn = nullptr;
     QToolButton * m_javaStatusBtn = nullptr;

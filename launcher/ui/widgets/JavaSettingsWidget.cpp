@@ -43,7 +43,7 @@ void JavaSettingsWidget::setupUi()
 {
     setObjectName(QStringLiteral("javaSettingsWidget"));
     m_verticalLayout = new QVBoxLayout(this);
-    m_verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
+    m_verticalLayout->setObjectName(QStringLiteral("verticalLayout"));    
 
     m_versionWidget = new VersionSelectWidget(this);
     m_verticalLayout->addWidget(m_versionWidget);
@@ -111,8 +111,13 @@ void JavaSettingsWidget::setupUi()
     m_permGenSpinBox->setSingleStep(8);
     m_gridLayout_2->addWidget(m_permGenSpinBox, 2, 1, 1, 1);
     m_permGenSpinBox->setVisible(false);
-
     m_verticalLayout->addWidget(m_memoryGroupBox);
+
+    m_javaDownloadLink = new QLabel(this);
+    m_javaDownloadLink->setObjectName(QStringLiteral("javaDownloadLink"));
+    m_javaDownloadLink->setText(QStringLiteral("<html><head/><body><p>Find compatible versions of Java at <a href=\"https://polycraft.utdallas.edu/downloads/#java\">https://polycraft.utdallas.edu/downloads/#java</a></p></body></html>"));
+    m_javaDownloadLink->setOpenExternalLinks(true);
+    m_verticalLayout->addWidget(m_javaDownloadLink);
 
     retranslate();
 }

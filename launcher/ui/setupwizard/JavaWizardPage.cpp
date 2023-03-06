@@ -92,7 +92,7 @@ bool JavaWizardPage::validatePage()
 void JavaWizardPage::retranslate()
 {
     setTitle(tr("Java"));
-    setSubTitle(tr("You do not have a working Java set up yet or it went missing.\n"
-        "Please select one of the following or browse for a java executable."));
+    setSubTitle(tr("<html><head/><body><p>You do not have a working Java set up yet or it went missing. Polycraft World requires Java 1.8.<br/>"
+                   "<span style=\"font-weight:600; color:#ff0000;\">If it is not avaiable please install it. Please select Java 1.8 or download from below.</span></p></body></html>"));
     m_java_widget->retranslate();
 }

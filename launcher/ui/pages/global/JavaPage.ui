@@ -40,6 +40,13 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
+        <widget class="QLabel" name="pcwRequirementLabel">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Polycraft World requires Java 1.8.&lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;Follow the link below if you do not have Java 1.8 installed.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="memoryGroupBox">
          <property name="title">
           <string>Memory</string>
@@ -223,6 +230,13 @@
            </widget>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="javaDownloadLink">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Find compatible versions of Java at &lt;a href=&quot;https://polycraft.utdallas.edu/downloads/#java&quot;&gt;https://polycraft.utdallas.edu/downloads/#java&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
         </widget>
        </item>
        <item>
